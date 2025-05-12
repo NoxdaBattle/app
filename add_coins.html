@@ -1,64 +1,287 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="loader.css">
+<title>Payment Gateway</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 <style>
-    #qrPage, #loader { display: none; }
-    .customer-text { width: 90%;}
-    .payment-option { padding: 4px; border: 1px solid; text-align: center; width: 90%; border-radius: 125px; display: flex; align-items: center; gap: 15px; font-size: 22px;}
-    .payment-option > img { width: 35px; height: 35px; border-radius: 125px; margin: 0px 0px 0px 2px;}
-    .selected { background: #fff; color: #000;}
-    .details-hero { display: flex; flex-direction: column; gap: 14px;}
-    .details-hero > p { font-size: 20px;}
-    #qrCode { padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0px 0px 15px rgb(0 67 255 / 80%); transition: transform 0.3s ease-in-out; }
-    #qrCode:hover { transform: scale(1.1); }
-    #merchantName { font-size: 24px; font-weight: bold; color: #0ff; text-shadow: 0 0 8px rgba(0, 255, 255, 0.8); margin-top: 10px; }
-    #upiID, #transactionID { font-size: 18px; color: #bbb; margin-top: 5px; }
-    #payAmount { font-size: 30px; font-weight: bold; color: #ff0; text-shadow: 0 0 8px rgba(255, 255, 0, 0.8); margin-top: 15px; }
-    input[type="file"]::file-selector-button { padding: 6px; width: 120px; border-radius: 125px; margin: 0px 10px 0px 0px; border: none; background: #0ff; font-family: "Work Sans", serif; color: #000; }
-    #timer { font-size: 22px; font-weight: bold; color: #ff4444; margin-top: 20px; background: rgba(0, 0, 0, 0.6); padding: 8px 15px; border-radius: 5px; box-shadow: 0px 0px 10px rgba(255, 0, 0, 0.7); }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f4f6f9;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    .payment-container {
+        max-width: 450px;
+        width: 100%;
+        background-color: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .header {
+        background-color: #3b82f6;
+        color: white;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .payment-section {
+        padding: 25px;
+    }
+
+    .input-field {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
+    #qrPage{
+        flex-direction: column;
+    }
+    .payment-option > img {
+        border-radius: 125px;
+    }
+    .input-field:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    .payment-option {
+        display: flex;
+        align-items: center;
+        padding: 12px;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .payment-option:hover {
+        border-color: #3b82f6;
+        background-color: #f3f4f6;
+    }
+
+    .payment-option.selected {
+        border-color: #3b82f6;
+        background-color: #eff6ff;
+    }
+
+    .payment-option img {
+        width: 40px;
+        height: 40px;
+        margin-right: 15px;
+        object-fit: contain;
+    }
+
+    .proceed-btn {
+        width: 100%;
+        padding: 15px;
+        background-color: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .proceed-btn:hover {
+        background-color: #2563eb;
+    }
+
+    .qr-page {
+        text-align: center;
+    }
+
+    .qr-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .qr-details {
+        background-color: #f9fafb;
+        border-radius: 10px;
+        padding: 20px;
+        width: 100%;
+        text-align: left;
+    }
+
+    .qr-details p {
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .qr-details p span:last-child {
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .file-input {
+        display: none;
+    }
+
+    .file-label {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        border: 2px dashed #e5e7eb;
+        border-radius: 10px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .file-label:hover {
+        border-color: #3b82f6;
+        background-color: #f3f4f6;
+    }
+
+    .file-label.has-file {
+        border-color: #10b981;
+        background-color: #d1fae5;
+    }
+
+    .loader-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .loader {
+        border: 4px solid #f3f4f6;
+        border-top: 4px solid #3b82f6;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .timer {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #dc2626;
+        margin-top: 15px;
+    }
 </style>
 
-<div id="paymentPage" class="form">
-    <div class="form-group">
-        <div class="customer-text"><h3>Enter Amount</h3><hr></div>
-        <input type="number" id="amount" placeholder="Enter Amount" class="int">
-        <div class="customer-text"><h3>Select Payment Option</h3><hr></div>
-        <div class="payment-option" onclick="selectPayment('PhonePe')"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVf6nm-Dk1ELbj1aBfeN_vJH6R1wAqYWnltw&s"><span>PhonePe</span></div>
-        <div class="payment-option" onclick="selectPayment('Google Pay')"><img src="https://img.icons8.com/color/512/google-pay.png"><span>Google Pay</span></div>
-        <div class="payment-option" onclick="selectPayment('Other')"><img src="https://img.icons8.com/fluent/512/bhim.png"><span>Other</span></div>
-        <input type="hidden" id="paymentOption">
-        <button onclick="proceedToPay()" class="btn">Proceed to Pay</button>
+<div id="paymentPage" class="payment-container">
+    <div class="header">
+        <h2 class="text-xl font-bold">Add Coins</h2>
     </div>
-</div>
-
-<div id="qrPage" class="form">
-    <div class="form-group">
-        <div class="customer-text"><h3>Scan & Pay</h3><hr></div>
-        <div id="qrCode"></div>
-        <div class="details-hero">
-        <p>Amount: <span id="payAmount"></span></p>
-        <p>UPI ID: <span id="upiID"></span></p>
-        <p>Merchant Name: <span id="merchantName"></span></p>
-        <p>Transaction ID: <span id="transactionID"></span></p>
-        <p>Time Left: <span id="timer"></span></p>
-        <label>Upload Payment Proof:</label>
-        <input type="file" id="paymentProof">
+    <div class="payment-section">
+        <div class="mb-4">
+            <label class="block text-gray-700 font-medium mb-2">Enter Amount</label>
+            <input type="number" id="amount" placeholder="Enter Amount" class="input-field">
         </div>
-        <button onclick="uploadImage()" class="btn">Submit</button>
+        
+        <div class="mb-4">
+            <label class="block text-gray-700 font-medium mb-2">Select Payment Option</label>
+            <div class="payment-option" onclick="selectPayment('PhonePe')">
+                <img src="https://ps.w.org/phonepe-payment-solutions/assets/icon-256x256.png?rev=2756185" alt="PhonePe">
+                <span>PhonePe</span>
+            </div>
+            <div class="payment-option" onclick="selectPayment('Google Pay')">
+                <img src="https://img.icons8.com/color/512/google-pay.png" alt="Google Pay">
+                <span>Google Pay</span>
+            </div>
+            <div class="payment-option" onclick="selectPayment('Other')">
+                <img src="https://img.icons8.com/fluent/512/bhim.png" alt="Other">
+                <span>Other</span>
+            </div>
+        </div>
+
+        <input type="hidden" id="paymentOption">
+        <button onclick="proceedToPay()" class="proceed-btn">Proceed to Pay</button>
     </div>
 </div>
 
-<div id="loader"><div class="loader"></div></div>
+<div id="qrPage" class="payment-container qr-page" style="display:none;">
+    <div class="header">
+        <h2 class="text-xl font-bold">Scan & Pay</h2>
+    </div>
+    <div class="payment-section qr-container">
+        <div id="qrCode"></div>
+        <div class="qr-details">
+            <p>
+                <span>Amount:</span>
+                <span id="payAmount"></span>
+            </p>
+            <p>
+                <span>UPI ID:</span>
+                <span id="upiID"></span>
+            </p>
+            <p>
+                <span>Merchant Name:</span>
+                <span id="merchantName"></span>
+            </p>
+            <p>
+                <span>Transaction ID:</span>
+                <span id="transactionID"></span>
+            </p>
+        </div>
+        
+        <div class="timer" id="timer"></div>
+        
+        <input type="file" id="paymentProof" class="file-input" accept="image/*">
+        <label for="paymentProof" class="file-label">
+            Upload Payment Proof
+        </label>
+        
+        <button onclick="uploadImage()" class="proceed-btn mt-4">Submit Payment</button>
+    </div>
+</div>
+
+<div id="loader" class="loader-overlay">
+    <div class="loader"></div>
+</div>
 
 <script>
     let upiID = "", merchantName = "", transactionID = "", countdown;
 
+    document.getElementById('paymentProof').addEventListener('change', function(e) {
+        const label = document.querySelector('.file-label');
+        if (this.files && this.files.length > 0) {
+            label.textContent = this.files[0].name;
+            label.classList.add('has-file');
+        } else {
+            label.textContent = 'Upload Payment Proof';
+            label.classList.remove('has-file');
+        }
+    });
+
     function selectPayment(option) {
         document.getElementById("paymentOption").value = option;
         document.querySelectorAll(".payment-option").forEach(div => div.classList.remove("selected"));
-        document.querySelectorAll(".payment-option").forEach(div => { if (div.innerText === option) div.classList.add("selected"); });
+        document.querySelectorAll(".payment-option").forEach(div => { 
+            if (div.querySelector('span').textContent === option) div.classList.add("selected"); 
+        });
     }
 
     async function fetchUpiDetails() {
@@ -86,7 +309,14 @@
         document.getElementById("upiID").textContent = upiID;
         document.getElementById("merchantName").textContent = merchantName;
         document.getElementById("transactionID").textContent = transactionID;
-        new QRCode(document.getElementById("qrCode"), { text: `upi://pay?pa=${upiID}&pn=${merchantName}&mc=&tid=${transactionID}&tr=${transactionID}&tn=Paying&am=${amount}&cu=INR`, width: 200, height: 200 });
+        
+        document.getElementById("qrCode").innerHTML = '';
+        new QRCode(document.getElementById("qrCode"), { 
+            text: `upi://pay?pa=${upiID}&pn=${merchantName}&mc=&tid=${transactionID}&tr=${transactionID}&tn=Paying&am=${amount}&cu=INR`, 
+            width: 250, 
+            height: 250 
+        });
+        
         document.getElementById("paymentPage").style.display = "none";
         document.getElementById("qrPage").style.display = "flex";
         startTimer();
@@ -96,7 +326,7 @@
         let time = 5 * 60;
         countdown = setInterval(() => {
             let minutes = Math.floor(time / 60), seconds = time % 60;
-            document.getElementById("timer").textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            document.getElementById("timer").textContent = `Time Left: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
             time--;
             if (time < 0) {
                 clearInterval(countdown);
@@ -112,7 +342,7 @@
         showLoader();
         let formData = new FormData();
         formData.append("image", file);
-        fetch("https://api.imgbb.com/1/upload?key=de7cc61d8dde357df76fc271a14edbaa", { method: "POST", body: formData })
+        fetch("https://api.imgbb.com/1/upload?key=a1aab7277069e3d6fa62ab397ae5dfca", { method: "POST", body: formData })
         .then(response => response.json())
         .then(data => saveToGoogleSheet(data.data.url))
         .catch(err => { hideLoader(); console.error("Image Upload Error:", err); });
